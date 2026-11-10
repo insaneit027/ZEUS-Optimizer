@@ -26,8 +26,10 @@ jobs:
       - name: Compilar APK
         run: gradle assembleRelease --no-daemon --stacktrace
 
-      - name: Renomear
-        run: cp app/build/outputs/apk/release/app-release.apk ZEUS-Optimizer.apk
+      - name: Renomear e ler a versão
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk ZEUS-Optimizer.apk
+          echo "VERSAO=$(grep -oP 'versionName "\K[^"]+' app/build.gradle)" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -37,8 +39,8 @@ jobs:
       - name: Publicar para download no celular
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.0.${{ github.run_number }}
-          name: ZEUS Optimizer v2.0.${{ github.run_number }}
+          tag_name: v${{ env.VERSAO }}.${{ github.run_number }}
+          name: ZEUS Optimizer v${{ env.VERSAO }} (build ${{ github.run_number }})
           files: ZEUS-Optimizer.apk
 
   # Instala o APK num celular Android virtual e tira prints de cada tela
