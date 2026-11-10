@@ -1,46 +1,23 @@
-# ⚡ ZEUS Optimizer (Android)
+# ⚡ ZEUS Optimizer 2.0
 
-App nativo para Android 8.0 ou mais novo. Não precisa de root.
+Otimizador para Android 8.0 ou mais novo. Sem root, sem anúncios, sem coleta de dados.
 
-## O que ele faz
+## Baixar
+Vá em **Releases** (à direita, ou abaixo no celular) e baixe o `ZEUS-Optimizer.apk` mais recente.
 
-**Painel**
-- Nota de saúde de 0 a 100 (armazenamento, RAM, temperatura e saúde da bateria)
-- Uso do armazenamento e da RAM, com barras
-- Botão para encerrar apps parados em segundo plano
-- Dicas que funcionam de verdade
-
-**Limpeza**: varre o armazenamento e separa em:
-| Categoria | Classificação |
+## Funções
+| Aba | O que faz |
 |---|---|
-| Instaladores .apk | SEGURO |
-| Miniaturas (.thumbnails) | SEGURO |
-| Temporários, downloads incompletos e logs | SEGURO |
-| Lixeira de fotos (.trashed) | SEGURO |
-| Pastas vazias | SEGURO |
-| Arquivos duplicados (mantém o mais antigo) | REVISAR |
-| Mídia enviada pelo WhatsApp | REVISAR |
-| Backups antigos do WhatsApp (mantém o atual) | REVISAR |
-| Downloads com mais de 90 dias | REVISAR |
-| Arquivos com mais de 100 MB | REVISAR |
-
-O que é SEGURO já vem marcado. O que é REVISAR você marca se quiser.
-Nada é apagado sem confirmação. `Android/data` e `Android/obb` nunca são tocadas.
-
-**Apps**
-- Mostra há quantos dias cada app não é aberto e quanto espaço ocupa
-- Marca **REMOVER** (60+ dias sem uso), **REVISAR** (30+ dias ou cache alto) e **MANTER**
-- Teclados, a tela inicial e os apps do sistema nunca são sugeridos para remoção
-- Botões para desinstalar e para abrir a tela de limpar o cache
+| ⚡ Início | Nota de saúde animada, botão **Otimizar Agora** (encerra apps em segundo plano, limpa lixo seguro e cache), resumo de armazenamento, RAM, bateria e tempo ligado, recomendações personalizadas e dados do aparelho |
+| 🧹 Limpeza | Análise profunda: APKs, miniaturas, temporários, lixeira, pastas vazias, duplicados, arquivos grandes, downloads antigos e mídia do WhatsApp. Gráfico do que ocupa espaço (fotos, vídeos, áudios...) |
+| 📱 Apps | Apps esquecidos, tamanho, cache, tempo de tela da semana, filtros e desinstalação em lote |
+| 🔋 Bateria | Nível, temperatura, voltagem, corrente, tempo para carga completa, saúde e ciclos, atualizados ao vivo |
+| 🛠 Ferramentas | Modo Jogo, botão ZEUS Boost nas configurações rápidas, lembrete semanal, guia para acelerar animações e atalhos do sistema |
 
 ## Limites do Android (sem root)
-- Nenhum app pode limpar o cache de outros apps sozinho desde o Android 6. O app abre a tela certa e você toca em "Limpar cache".
-- Nenhum app pode desinstalar outro sem você confirmar.
-- Não existe "turbo de RAM" de verdade: o Android já gerencia a memória. O que deixa o celular lento quase sempre é armazenamento cheio e apps demais.
+- Nenhum app pode limpar o cache de outros apps sozinho desde o Android 6; o ZEUS abre a tela certa.
+- Desinstalar sempre pede sua confirmação.
+- O Android gerencia a RAM sozinho; o ZEUS encerra o que está parado em segundo plano.
 
-## Como gerar o APK
-1. Crie um repositório no GitHub e envie esta pasta inteira.
-2. O GitHub Actions compila sozinho (aba **Actions**, uns 5 minutos).
-3. Vá em **Releases**, baixe `ZEUS-Optimizer.apk` pelo celular e instale (permita "instalar apps desconhecidos").
-
-Ou abra a pasta no Android Studio e use **Build › Build APK(s)**.
+## Como é compilado
+Cada envio para `main` gera o APK pelo GitHub Actions, testa num emulador Android e publica em Releases.
