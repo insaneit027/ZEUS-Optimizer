@@ -95,6 +95,49 @@ abrir 4 "" 6;  shot 19-bateria
 abrir 5 "" 4;  shot 20-mais
 rolar;         shot 21-mais-rolado
 
+# ================= Modo PRO com Shizuku
+V="$OUT/verificacoes.txt"
+if [ -f shizuku.apk ]; then
+  adb install -r shizuku.apk
+  adb shell monkey -p moe.shizuku.privileged.api -c android.intent.category.LAUNCHER 1; sleep 6
+  DIR=$(adb shell pm path moe.shizuku.privileged.api | head -1 | sed 's/package://;s/base.apk//' | tr -d '\r')
+  adb shell "${DIR}lib/x86_64/libshizuku.so" > "$OUT/shizuku-start.txt" 2>&1 || true
+  adb shell sh /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh >> "$OUT/shizuku-start.txt" 2>&1 || true
+  sleep 6
+  abrir 6 "" 5; shot 22-pro-antes
+  tocar_texto "Conectar ao Shizuku"; sleep 4; shot 23-shizuku-dialogo
+  tocar_texto "Allow" || tocar_texto "Permitir" || tocar_texto "ALLOW"; sleep 4
+  abrir 6 "" 5; shot 24-pro-conectado
+  rolar; shot 25-pro-2
+  rolar; shot 26-pro-3
+  echo "desfoque antes: $(adb shell settings get global disable_window_blurs)" >> "$V"
+  abrir 6 "" 4
+  tocar_texto "Aplicar"; sleep 6; shot 27-pro-aplicado
+  echo "desfoque depois de Aplicar: $(adb shell settings get global disable_window_blurs)" >> "$V"
+  tocar_texto "Desfazer"; sleep 6
+  echo "desfoque depois de Desfazer: $(adb shell settings get global disable_window_blurs)" >> "$V"
+  abrir 6 "" 4
+  tocar_texto "Compilar interface do sistema"; sleep 3; shot 28-compilando
+  sleep 60; shot 29-compilado
+  # sessão de jogo com ajustes PRO
+  echo "popups antes do jogo: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
+  abrir 1 "" 4
+  tocar_texto "Mostrar todos os apps"; sleep 2
+  tocar_texto "Jogar ⚡"; sleep 10; shot 30-jogo-pro
+  echo "popups durante o jogo: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
+  echo "vibracao durante o jogo: $(adb shell settings get system haptic_feedback_enabled)" >> "$V"
+  echo "sessao: $(adb shell run-as com.zeus.optimizer cat shared_prefs/zeus.xml 2>/dev/null | grep -o 'sessao_pkg[^<]*<' )" >> "$V"
+  adb shell am start -n $P/.MainActivity; sleep 8; shot 31-volta-pro
+  echo "popups depois de voltar: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
+  echo "vibracao depois de voltar: $(adb shell settings get system haptic_feedback_enabled)" >> "$V"
+  # congelar app
+  abrir 3 "" 15
+  tocar_texto "Congelar"; sleep 5; shot 32-congelado
+  echo "suspenso: $(adb shell dumpsys package com.otimizador.app | grep -o 'suspended=[a-z]*' | head -1)" >> "$V"
+else
+  echo "shizuku.apk nao baixado" >> "$V"
+fi
+
 adb logcat -d -b crash > "$OUT/crashes.txt"
 adb logcat -d | grep -iE "AndroidRuntime|FATAL|zeus" | tail -200 > "$OUT/log.txt"
 exit 0

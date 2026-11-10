@@ -58,7 +58,10 @@ jobs:
       - name: Baixar app de exemplo para o teste
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download v1.0.2 -R ${{ github.repository }} -p ZEUS-Optimizer.apk -O exemplo.apk || true
+        run: |
+          gh release download v1.0.2 -R ${{ github.repository }} -p ZEUS-Optimizer.apk -O exemplo.apk || true
+          gh release download -R RikkaApps/Shizuku -p '*.apk' -O shizuku.apk || true
+          ls -la *.apk
 
       - name: Ativar KVM
         run: |

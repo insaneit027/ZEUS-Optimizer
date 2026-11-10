@@ -94,6 +94,8 @@ final class Scanner {
             "Downloads incompletos (.part, .crdownload), arquivos .tmp e registros .log.", true);
     private final Category trash = new Category("🗑", "Lixeira de fotos",
             "Arquivos que já foram para a lixeira (.trashed). Seriam apagados depois de qualquer jeito.", true);
+    private final Category brandLogs = new Category("📜", "Logs do sistema da marca",
+            "Pastas de log que Xiaomi, Oppo, Realme, MediaTek e Huawei deixam crescendo (MIUI/debug_log, mtklog, oppo_log...). Só servem para técnicos.", true);
     private final Category empty = new Category("📁", "Pastas vazias",
             "Pastas sem nenhum arquivo dentro.", true);
     private final Category dup = new Category("👯", "Arquivos duplicados",
@@ -138,7 +140,7 @@ final class Scanner {
                 add(oldDl, f, len);
             }
         }
-        Collections.addAll(result.categories, apk, thumbs, temp, trash, empty, dup, waSent, waBackup, oldDl, large);
+        Collections.addAll(result.categories, apk, thumbs, temp, trash, brandLogs, empty, dup, waSent, waBackup, oldDl, large);
         return result;
     }
 
@@ -158,6 +160,10 @@ final class Scanner {
             return;
         }
         boolean th = inThumbs || dir.getName().equalsIgnoreCase(".thumbnails");
+        if (isBrandLog(rel)) {
+            collectAll(dir, brandLogs, 0);
+            return;
+        }
         for (File f : list) {
             try {
                 if (Files.isSymbolicLink(f.toPath())) continue;
@@ -166,6 +172,30 @@ final class Scanner {
             }
             if (f.isDirectory()) walk(f, depth + 1, th);
             else file(f, rel, th);
+        }
+    }
+
+    private static final String[] BRAND_LOG_DIRS = {"/miui/debug_log", "/mtklog", "/debuglogger", "/oppo_log",
+            "/coloros/log", "/log/hilogs", "/bugreports", "/miui/bugreport", "/tencent/msflogs"};
+
+    private static boolean isBrandLog(String rel) {
+        for (String d : BRAND_LOG_DIRS) if (rel.equals(d)) return true;
+        return false;
+    }
+
+    private void collectAll(File dir, Category cat, int depth) {
+        File[] list = dir.listFiles();
+        if (list == null || depth > 12) return;
+        for (File f : list) {
+            if (f.isDirectory()) collectAll(f, cat, depth + 1);
+            else {
+                long len = f.length();
+                result.scanned++;
+                result.typeBytes[T_OTHER] += len;
+                result.typeCount[T_OTHER]++;
+                result.totalBytes += len;
+                add(cat, f, len);
+            }
         }
     }
 

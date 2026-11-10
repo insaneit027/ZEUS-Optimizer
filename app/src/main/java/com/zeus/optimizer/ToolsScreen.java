@@ -84,7 +84,7 @@ final class ToolsScreen extends Screen {
 
         // ---------------- Sobre
         LinearLayout about = Theme.card(a);
-        about.addView(Theme.text(a, "⚡ ZEUS Optimizer 3.0", 15, Theme.GOLD, true));
+        about.addView(Theme.text(a, "⚡ ZEUS Optimizer 4.0", 15, Theme.GOLD, true));
         about.addView(Theme.small(a, "Sem anúncios. Sem coleta de dados. Tudo roda no seu celular."));
         root.addView(about);
     }

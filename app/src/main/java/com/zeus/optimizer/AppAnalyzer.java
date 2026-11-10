@@ -31,6 +31,7 @@ final class AppAnalyzer {
         String pkg, label, reason;
         Drawable icon;
         long size, cache, lastUsed, screenTime7d;
+        boolean frozen;
         int level = KEEP;
     }
 
@@ -93,6 +94,7 @@ final class AppAnalyzer {
 
             App a = new App();
             a.pkg = ai.packageName;
+            a.frozen = (ai.flags & ApplicationInfo.FLAG_SUSPENDED) != 0 || !ai.enabled;
             a.label = String.valueOf(ai.loadLabel(pm));
             try {
                 a.icon = ai.loadIcon(pm);

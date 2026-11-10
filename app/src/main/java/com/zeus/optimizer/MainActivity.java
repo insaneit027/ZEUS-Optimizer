@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    static final int HOME = 0, TURBO = 1, CLEAN = 2, APPS = 3, BATTERY = 4, TOOLS = 5;
+    static final int HOME = 0, TURBO = 1, CLEAN = 2, APPS = 3, BATTERY = 4, TOOLS = 5, PRO = 6;
     private static final int TABS = 6;
     private static final String[] NAV_ICONS = {"⚡", "🚀", "🧹", "📱", "🔋", "🛠"};
     private static final String[] NAV_NAMES = {"Início", "Turbo", "Limpeza", "Apps", "Bateria", "Mais"};
@@ -41,7 +41,12 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Theme.SURFACE);
 
         screens = new Screen[]{new HomeScreen(this), new TurboScreen(this), new CleanScreen(this),
-                new AppsScreen(this), new BatteryScreen(this), new ToolsScreen(this)};
+                new AppsScreen(this), new BatteryScreen(this), new ToolsScreen(this), new ProScreen(this)};
+        try {
+            rikka.shizuku.Shizuku.addRequestPermissionResultListener(shizukuListener);
+            rikka.shizuku.Shizuku.addBinderReceivedListener(binderListener);
+        } catch (Throwable ignored) {
+        }
 
         LinearLayout root = Theme.col(this);
         root.setBackgroundColor(Theme.BG);
@@ -66,7 +71,7 @@ public class MainActivity extends Activity {
         names.addView(nameRow);
         names.addView(Theme.small(this, "Desempenho no máximo"));
         header.addView(names, Theme.weight(1));
-        header.addView(Theme.tag(this, "v3.0", Theme.CYAN));
+        header.addView(Theme.tag(this, "v4.0", Theme.GOLD));
         root.addView(header);
 
         scroll = new ScrollView(this);
@@ -103,7 +108,7 @@ public class MainActivity extends Activity {
 
         Intent in = getIntent();
         if (in != null) {
-            tab = Math.max(0, Math.min(TABS - 1, in.getIntExtra("tab", HOME)));
+            tab = Math.max(0, Math.min(PRO, in.getIntExtra("tab", HOME)));
             autoScanPending = in.getBooleanExtra("autoscan", false);
         }
     }
@@ -111,7 +116,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (TurboScreen.endGameSession(this)) toast("🎮 Sessão de jogo encerrada — configurações restauradas");
+        if (TurboScreen.sessionActive(this)) {
+            final android.content.Context ctx = getApplicationContext();
+            new Thread(() -> {
+                TurboScreen.endGameSession(ctx);
+                ui.post(() -> toast("🎮 Sessão de jogo encerrada — configurações restauradas"));
+            }).start();
+        }
         render();
         if (autoScanPending) {
             autoScanPending = false;
@@ -141,6 +152,36 @@ public class MainActivity extends Activity {
         return tab;
     }
 
+    private final rikka.shizuku.Shizuku.OnRequestPermissionResultListener shizukuListener =
+            (code, result) -> ui.post(() -> {
+                toast(result == android.content.pm.PackageManager.PERMISSION_GRANTED
+                        ? "👑 Shizuku conectado! Modo PRO liberado" : "Permissão do Shizuku negada");
+                render();
+            });
+
+    private final rikka.shizuku.Shizuku.OnBinderReceivedListener binderListener = () -> ui.post(() -> {
+        if (tab == PRO || tab == TURBO) refresh();
+    });
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            rikka.shizuku.Shizuku.removeRequestPermissionResultListener(shizukuListener);
+            rikka.shizuku.Shizuku.removeBinderReceivedListener(binderListener);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (tab == PRO) {
+            go(TURBO);
+            return;
+        }
+        super.onBackPressed();
+    }
+
     void go(int t) {
         if (t == tab) return;
         tab = t;
@@ -150,8 +191,9 @@ public class MainActivity extends Activity {
 
     void render() {
         gen++;
+        int navTab = tab == PRO ? TURBO : tab;
         for (int i = 0; i < TABS; i++) {
-            boolean on = i == tab;
+            boolean on = i == navTab;
             navLabels[i].setTextColor(on ? Theme.GOLD : Theme.DIM);
             navIcons[i].setAlpha(on ? 1f : 0.55f);
             navItems[i].setBackground(on ? Theme.rounded(this, Theme.alpha(Theme.GOLD, 0x1C), 14) : null);

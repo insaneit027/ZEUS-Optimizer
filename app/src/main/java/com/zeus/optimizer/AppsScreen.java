@@ -90,6 +90,9 @@ final class AppsScreen extends Screen {
                 for (AppAnalyzer.App ap : result.apps) if (ap.level == AppAnalyzer.REMOVE) picked.add(ap.pkg);
                 a.refresh();
             });
+            if (Shell.shizukuGranted() && android.os.Build.VERSION.SDK_INT >= 31) {
+                addButton(sum, Theme.secondary(a, "💤  Hibernar os esquecidos (sem desinstalar)"), v -> hibernateForgotten());
+            }
         }
         if (usage && result.totalScreenTime > 0) {
             sum.addView(Theme.space(a, 10));
@@ -247,7 +250,46 @@ final class AppsScreen extends Screen {
         btns.addView(un, l1);
         btns.addView(cache, l2);
         c.addView(btns);
+        if (Shell.shizukuGranted()) {
+            Button fz = Theme.secondary(a, ap.frozen ? "🔥  Descongelar" : "🧊  Congelar (parar sem desinstalar)");
+            fz.setTextSize(13);
+            fz.setPadding(dp(10), dp(10), dp(10), dp(10));
+            fz.setOnClickListener(v -> freeze(ap, !ap.frozen));
+            c.addView(fz, Theme.fullWidth(a, 8));
+        }
+        if (ap.frozen) {
+            c.addView(Theme.space(a, 6));
+            c.addView(Theme.text(a, "🧊 Congelado: não roda nem aparece ativo até você descongelar", 12.5f, Theme.CYAN, true));
+        }
         return c;
+    }
+
+    private void freeze(AppAnalyzer.App ap, boolean on) {
+        final android.content.Context ctx = a.getApplicationContext();
+        new Thread(() -> {
+            String cmd = on
+                    ? "am force-stop " + ap.pkg + "; pm suspend --user 0 " + ap.pkg
+                    : "pm unsuspend --user 0 " + ap.pkg + "; pm enable " + ap.pkg;
+            Shell.Result r = Shell.run(cmd);
+            a.ui.post(() -> {
+                a.toast(on ? "🧊 " + ap.label + " congelado" : "🔥 " + ap.label + " descongelado");
+                result = null;
+                if (a.tab() == MainActivity.APPS) a.refresh();
+            });
+        }).start();
+    }
+
+    private void hibernateForgotten() {
+        final android.content.Context ctx = a.getApplicationContext();
+        final java.util.List<String> pkgs = new java.util.ArrayList<>();
+        for (AppAnalyzer.App ap : result.apps) if (ap.level == AppAnalyzer.REMOVE) pkgs.add(ap.pkg);
+        a.toast("💤 Hibernando " + pkgs.size() + " apps esquecidos...");
+        new Thread(() -> {
+            StringBuilder sb = new StringBuilder();
+            for (String p : pkgs) sb.append("cmd app_hibernation set-state ").append(p).append(" true >/dev/null 2>&1; ");
+            Shell.run(sb.toString());
+            a.ui.post(() -> a.toast("💤 " + pkgs.size() + " apps hibernados. Eles acordam sozinhos quando você abrir."));
+        }).start();
     }
 
     private void updateBatch() {

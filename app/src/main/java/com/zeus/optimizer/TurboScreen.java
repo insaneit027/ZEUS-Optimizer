@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
@@ -108,6 +109,7 @@ final class TurboScreen extends Screen {
                     "Abrir", () -> a.openSetting(Settings.ACTION_DISPLAY_SETTINGS)));
         }
 
+        buildProEntry(root);
         buildGameBooster(root, adv);
         buildMonitor(root, disp);
         buildDisplay(root, disp);
@@ -171,6 +173,29 @@ final class TurboScreen extends Screen {
         return r;
     }
 
+    // ================================================================= Modo PRO
+
+    private void buildProEntry(LinearLayout root) {
+        int lvl = Shell.level(a);
+        LinearLayout c = Theme.card(a);
+        c.setBackground(Theme.outlined(a, 0xFF1A1405, 0xFF854D0E, 20));
+        LinearLayout r = Theme.row(a);
+        r.addView(Theme.icon(a, "👑", Theme.GOLD, 46));
+        LinearLayout tx = Theme.col(a);
+        tx.setPadding(dp(12), 0, 0, 0);
+        LinearLayout tr = Theme.row(a);
+        tr.addView(Theme.text(a, "Modo PRO", 17, Theme.GOLD, true), Theme.weight(1));
+        tr.addView(Theme.tag(a, lvl == Shell.SHIZUKU ? "CONECTADO" : lvl == Shell.SECURE ? "PARCIAL" : "DESLIGADO",
+                lvl == Shell.SHIZUKU ? Theme.GREEN : lvl == Shell.SECURE ? Theme.GOLD : Theme.MUTED));
+        tx.addView(tr);
+        tx.addView(Theme.small(a, "Com o Shizuku: Modo de Jogo em desempenho, resolução e limite de FPS do jogo, Hz máximo, "
+                + "apps pesados bloqueados durante a partida, compilação de jogos e mais de 20 ajustes com Desfazer."));
+        r.addView(tx, Theme.weight(1));
+        c.addView(r);
+        addButton(c, Theme.primary(a, "👑  Abrir Modo PRO"), v -> a.go(MainActivity.PRO));
+        root.addView(c);
+    }
+
     // ================================================================= Game Booster
 
     private void buildGameBooster(LinearLayout root, boolean adv) {
@@ -180,11 +205,12 @@ final class TurboScreen extends Screen {
                 "Encerra apps em segundo plano, libera RAM e abre o jogo. Ao voltar ao ZEUS, tudo é restaurado.");
         c.addView(Theme.space(a, 6));
         c.addView(option("Ativar Não Perturbe durante o jogo", "boost_dnd", true));
-        CheckBox anim = option(adv ? "Desligar animações durante o jogo" : "Desligar animações (precisa do Modo Avançado)",
-                "boost_anim", true);
-        anim.setEnabled(adv);
-        anim.setAlpha(adv ? 1f : 0.5f);
-        c.addView(anim);
+        int extra = ProScreen.availableSessionTweaks(a);
+        TextView pro = Theme.text(a, extra > 0 ? "👑 + " + extra + " ajustes do Modo PRO em cada partida"
+                : "👑 Ative o Modo PRO para turbinar ainda mais cada partida", 13, Theme.GOLD, true);
+        pro.setPadding(dp(4), dp(6), 0, dp(2));
+        pro.setOnClickListener(v -> a.go(MainActivity.PRO));
+        c.addView(pro);
 
         if (apps == null) {
             c.addView(Theme.space(a, 8));
@@ -280,14 +306,13 @@ final class TurboScreen extends Screen {
     private void boostAndLaunch(GameApp g) {
         final Context ctx = a.getApplicationContext();
         final boolean wantDnd = prefs().getBoolean("boost_dnd", true);
-        final boolean wantAnim = prefs().getBoolean("boost_anim", true);
         a.toast("🚀 Turbinando " + g.label + "...");
         new Thread(() -> {
             SharedPreferences.Editor ed = prefs().edit();
             long before = Optimizer.availMem(ctx);
             int n = Optimizer.killBackground(ctx);
             Optimizer.clearOwnCache(ctx);
-            boolean dnd = false, anim = false;
+            boolean dnd = false;
             NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             if (wantDnd && nm != null && nm.isNotificationPolicyAccessGranted()) {
                 int prev = nm.getCurrentInterruptionFilter();
@@ -299,11 +324,9 @@ final class TurboScreen extends Screen {
                     }
                 }
             }
-            if (wantAnim && Turbo.hasAdvanced(ctx)) {
-                ed.putFloat("anim_antes", Turbo.animScale(ctx));
-                anim = Turbo.setAnimations(ctx, 0f);
-            }
-            ed.putBoolean("sessao_jogo", true).putBoolean("sessao_dnd", dnd).putBoolean("sessao_anim", anim).apply();
+            ed.putBoolean("sessao_jogo", true).putBoolean("sessao_dnd", dnd).apply();
+            int tweaks = Tweaks.startSession(ctx, g.pkg);
+            sessionNotification(ctx, g.label, true);
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ignored) {
@@ -318,16 +341,49 @@ final class TurboScreen extends Screen {
                 }
                 a.toast("🚀 Boost pronto: " + n + " apps encerrados"
                         + (freed > 0 ? " • " + Theme.size(freed) + " de RAM" : "")
-                        + (dndFinal ? " • Não Perturbe ativo" : ""));
+                        + (dndFinal ? " • Não Perturbe ativo" : "")
+                        + (tweaks > 0 ? " • " + tweaks + " ajustes PRO" : ""));
                 a.open(li);
             });
         }).start();
     }
 
-    /** Chamado quando o usuário volta ao ZEUS depois de jogar. */
+    static boolean sessionActive(Context c) {
+        return c.getSharedPreferences("zeus", Context.MODE_PRIVATE).getBoolean("sessao_jogo", false);
+    }
+
+    /** Notificação fixa enquanto a sessão de jogo está ativa: tocar encerra e restaura. */
+    static void sessionNotification(Context c, String game, boolean show) {
+        try {
+            android.app.NotificationManager nm = (android.app.NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (!show) {
+                nm.cancel(9);
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) return;
+            nm.createNotificationChannel(new android.app.NotificationChannel("zeus_sessao", "Sessão de jogo",
+                    android.app.NotificationManager.IMPORTANCE_LOW));
+            android.app.PendingIntent open = android.app.PendingIntent.getActivity(c, 9,
+                    new Intent(c, MainActivity.class).putExtra("tab", MainActivity.TURBO),
+                    android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            nm.notify(9, new android.app.Notification.Builder(c, "zeus_sessao")
+                    .setSmallIcon(R.drawable.ic_bolt)
+                    .setContentTitle("🎮 ZEUS turbinando: " + game)
+                    .setContentText("Toque para encerrar a sessão e restaurar as configurações")
+                    .setOngoing(true)
+                    .setContentIntent(open)
+                    .build());
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Chamado (fora da thread principal) quando o usuário volta ao ZEUS depois de jogar. */
     static boolean endGameSession(Context c) {
         SharedPreferences p = c.getSharedPreferences("zeus", Context.MODE_PRIVATE);
         if (!p.getBoolean("sessao_jogo", false)) return false;
+        Tweaks.endSession(c);
+        sessionNotification(c, null, false);
         if (p.getBoolean("sessao_dnd", false)) {
             try {
                 NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
