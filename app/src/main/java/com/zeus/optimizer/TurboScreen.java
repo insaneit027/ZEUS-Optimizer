@@ -350,7 +350,7 @@ final class TurboScreen extends Screen {
 
         Turbo.Cpu cpu = Turbo.cpu();
         boolean readable = false;
-        for (long v : cpu.cur) if (v > 0) readable = true;
+        for (long v : cpu.cur) if (v >= 100_000) readable = true; // abaixo de 100 MHz = leitura inválida
         coreText = new TextView[cpu.cores];
         coreBar = new BarView[cpu.cores];
         if (readable) {
@@ -402,7 +402,7 @@ final class TurboScreen extends Screen {
             for (int i = 0; i < cpu.cores && i < coreText.length; i++) {
                 if (coreText[i] == null) continue;
                 long cur = cpu.cur[i], max = cpu.max[i];
-                if (cur <= 0) {
+                if (cur < 100_000) {
                     coreText[i].setText("dormindo");
                     coreBar[i].setPercent(0, Theme.CYAN);
                 } else {
