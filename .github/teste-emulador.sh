@@ -7,6 +7,7 @@ mkdir -p "$OUT"
 
 adb wait-for-device
 adb shell settings put global window_animation_scale 1
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
 adb install -r ZEUS-Optimizer.apk || { echo "FALHA NA INSTALACAO" > "$OUT/erro.txt"; exit 0; }
 
 [ -f exemplo.apk ] && adb install -r exemplo.apk
