@@ -53,6 +53,11 @@ jobs:
         with:
           name: ZEUS-Optimizer-apk
 
+      - name: Baixar app de exemplo para o teste
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v1.0.2 -R ${{ github.repository }} -p ZEUS-Optimizer.apk -O exemplo.apk || true
+
       - name: Ativar KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

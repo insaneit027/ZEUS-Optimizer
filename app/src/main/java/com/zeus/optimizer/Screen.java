@@ -58,9 +58,9 @@ abstract class Screen {
     LinearLayout pair(View left, View right) {
         LinearLayout r = Theme.row(a);
         r.setGravity(android.view.Gravity.TOP);
-        LinearLayout.LayoutParams l1 = Theme.weight(1);
+        LinearLayout.LayoutParams l1 = new LinearLayout.LayoutParams(0, Theme.MATCH, 1f);
         l1.setMargins(0, 0, dp(6), 0);
-        LinearLayout.LayoutParams l2 = Theme.weight(1);
+        LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(0, Theme.MATCH, 1f);
         l2.setMargins(dp(6), 0, 0, 0);
         r.addView(left, l1);
         r.addView(right, l2);

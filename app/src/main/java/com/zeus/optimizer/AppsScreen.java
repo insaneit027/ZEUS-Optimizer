@@ -132,6 +132,12 @@ final class AppsScreen extends Screen {
         List<AppAnalyzer.App> list = new ArrayList<>(result.apps);
         Collections.sort(list, comparator());
         for (AppAnalyzer.App ap : list) root.addView(appRow(ap, usage));
+        if (list.isEmpty()) {
+            LinearLayout e = Theme.card(a);
+            e.addView(Theme.title(a, "Nenhum app instalado por você"));
+            e.addView(Theme.small(a, "Só os apps do sistema estão no celular."));
+            root.addView(e);
+        }
 
         LinearLayout sys = Theme.card(a);
         LinearLayout r = Theme.row(a);

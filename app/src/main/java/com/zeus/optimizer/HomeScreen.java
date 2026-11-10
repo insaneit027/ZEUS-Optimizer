@@ -41,7 +41,7 @@ final class HomeScreen extends Screen {
 
         GaugeView gauge = new GaugeView(a);
         hero.addView(gauge, new LinearLayout.LayoutParams(Theme.WRAP, Theme.WRAP));
-        gauge.setValue(s.score, "saúde do celular", "");
+        gauge.setValue(s.score, "saúde", "");
 
         String verdict = s.score >= 85 ? "Seu celular está voando ⚡"
                 : s.score >= 60 ? "Dá para ficar mais rápido" : "Seu celular precisa de otimização";
@@ -154,7 +154,7 @@ final class HomeScreen extends Screen {
         c.setBackground(Theme.outlined(a, 0xFF0B1F17, 0xFF14532D, 20));
         c.addView(Theme.text(a, "✅  Otimização concluída", 17, Theme.GREEN, true));
         c.addView(Theme.space(a, 6));
-        c.addView(line("🚀", r.appsClosed + " apps em segundo plano encerrados"));
+        c.addView(line("🚀", r.appsClosed > 0 ? r.appsClosed + " apps em segundo plano encerrados" : "Nenhum app pesado em segundo plano"));
         c.addView(line("🧠", r.ramFreed > 0 ? Theme.size(r.ramFreed) + " de RAM liberada" : "Memória RAM reorganizada"));
         if (r.junkSkipped) {
             c.addView(line("🔒", "Limpeza de arquivos pulada (falta permissão)"));

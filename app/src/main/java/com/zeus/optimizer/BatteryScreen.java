@@ -144,7 +144,7 @@ final class BatteryScreen extends Screen {
     }
 
     private static String statusText(Info i) {
-        if (i.status == BatteryManager.BATTERY_STATUS_FULL) return "Carga completa ✅";
+        if (i.status == BatteryManager.BATTERY_STATUS_FULL || (i.charging && i.level >= 100)) return "Carga completa ✅";
         if (i.charging) return "Carregando ⚡";
         if (i.level >= 0 && i.level <= 15) return "Bateria fraca — conecte o carregador";
         return "Usando a bateria";
@@ -166,7 +166,7 @@ final class BatteryScreen extends Screen {
     }
 
     private static String timeText(Info i) {
-        if (i.status == BatteryManager.BATTERY_STATUS_FULL) return "Completa";
+        if (i.status == BatteryManager.BATTERY_STATUS_FULL || i.level >= 100) return "Completa";
         if (!i.charging || i.chargeLeftMs <= 0) return "—";
         long min = i.chargeLeftMs / 60000;
         return min >= 60 ? (min / 60) + "h " + (min % 60) + "min" : min + " min";

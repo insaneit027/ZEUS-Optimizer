@@ -105,17 +105,17 @@ public class GaugeView extends View {
 
         big.setTextSize(w * 0.27f);
         String num = String.valueOf(Math.round(shown));
-        canvas.drawText(num, cx, cy + big.getTextSize() * 0.33f, big);
+        canvas.drawText(num, cx, cy + big.getTextSize() * 0.25f, big);
         if (!suffix.isEmpty()) {
             label.setTextSize(w * 0.075f);
             label.setColor(Theme.MUTED);
             float nw = big.measureText(num);
             label.setTextAlign(Paint.Align.LEFT);
-            canvas.drawText(suffix, cx + nw / 2f + w * 0.01f, cy + big.getTextSize() * 0.33f, label);
+            canvas.drawText(suffix, cx + nw / 2f + w * 0.01f, cy + big.getTextSize() * 0.25f, label);
             label.setTextAlign(Paint.Align.CENTER);
         }
-        label.setTextSize(w * 0.062f);
+        label.setTextSize(w * 0.058f);
         label.setColor(Theme.MUTED);
-        canvas.drawText(caption.toUpperCase(), cx, cy + w * 0.25f, label);
+        canvas.drawText(caption.toUpperCase(), cx, cy + w * 0.2f, label);
     }
 }

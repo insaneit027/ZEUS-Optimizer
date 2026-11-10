@@ -9,7 +9,10 @@ adb wait-for-device
 adb shell settings put global window_animation_scale 1
 adb install -r ZEUS-Optimizer.apk || { echo "FALHA NA INSTALACAO" > "$OUT/erro.txt"; exit 0; }
 
+[ -f exemplo.apk ] && adb install -r exemplo.apk
+
 # Permissões que o usuário daria na mão
+adb shell cmd notification allow_dnd $P || true
 adb shell appops set $P MANAGE_EXTERNAL_STORAGE allow
 adb shell appops set $P GET_USAGE_STATS allow
 adb shell pm grant $P android.permission.POST_NOTIFICATIONS || true
@@ -67,6 +70,9 @@ rolar;         shot 12-bateria-rolado
 
 abrir 4 "" 4;  shot 13-ferramentas
 rolar;         shot 14-ferramentas-rolado
+abrir 4 "" 4
+tocar_texto "Ativar Modo Jogo"; sleep 4; shot 15-modo-jogo
+tocar_texto "Desativar Modo Jogo"; sleep 2
 
 adb logcat -d -b crash > "$OUT/crashes.txt"
 adb logcat -d | grep -iE "AndroidRuntime|FATAL|zeus" | tail -200 > "$OUT/log.txt"

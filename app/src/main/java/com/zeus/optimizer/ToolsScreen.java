@@ -77,6 +77,12 @@ final class ToolsScreen extends Screen {
         sw.setText(ReminderReceiver.enabled(a) ? "Ativado" : "Desativado");
         sw.setTextColor(Theme.TEXT);
         sw.setChecked(ReminderReceiver.enabled(a));
+        android.content.res.ColorStateList thumb = new android.content.res.ColorStateList(
+                new int[][]{{android.R.attr.state_checked}, {}}, new int[]{Theme.GOLD, 0xFFCBD5E1});
+        android.content.res.ColorStateList trk = new android.content.res.ColorStateList(
+                new int[][]{{android.R.attr.state_checked}, {}}, new int[]{Theme.alpha(Theme.GOLD, 0x80), 0xFF475569});
+        sw.setThumbTintList(thumb);
+        sw.setTrackTintList(trk);
         sw.setOnCheckedChangeListener((b, on) -> {
             if (on && Build.VERSION.SDK_INT >= 33
                     && a.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
