@@ -121,7 +121,13 @@ final class HomeScreen extends Screen {
         if (s.animScale > 0.6f) {
             root.addView(rec("✨", Theme.PURPLE, "Acelere as animações",
                     "Com animações em 0,5x o celular parece bem mais rápido ao abrir apps.",
-                    "Como fazer", () -> a.go(MainActivity.TOOLS)));
+                    "Acelerar", () -> a.go(MainActivity.TURBO)));
+            n++;
+        }
+        if (Turbo.powerSave(a)) {
+            root.addView(rec("🔋", Theme.RED, "Economia de bateria ligada",
+                    "Ela deixa o processador e a tela mais lentos. Desligue para ter desempenho máximo.",
+                    "Ver", () -> a.go(MainActivity.TURBO)));
             n++;
         }
         if (s.temp >= 40) {

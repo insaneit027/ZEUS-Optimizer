@@ -18,18 +18,19 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    static final int HOME = 0, CLEAN = 1, APPS = 2, BATTERY = 3, TOOLS = 4;
-    private static final String[] NAV_ICONS = {"⚡", "🧹", "📱", "🔋", "🛠"};
-    private static final String[] NAV_NAMES = {"Início", "Limpeza", "Apps", "Bateria", "Ferramentas"};
+    static final int HOME = 0, TURBO = 1, CLEAN = 2, APPS = 3, BATTERY = 4, TOOLS = 5;
+    private static final int TABS = 6;
+    private static final String[] NAV_ICONS = {"⚡", "🚀", "🧹", "📱", "🔋", "🛠"};
+    private static final String[] NAV_NAMES = {"Início", "Turbo", "Limpeza", "Apps", "Bateria", "Mais"};
 
     final Handler ui = new Handler(Looper.getMainLooper());
     int gen;
     private int tab = HOME;
     private ScrollView scroll;
     private LinearLayout content;
-    private final LinearLayout[] navItems = new LinearLayout[5];
-    private final TextView[] navIcons = new TextView[5];
-    private final TextView[] navLabels = new TextView[5];
+    private final LinearLayout[] navItems = new LinearLayout[TABS];
+    private final TextView[] navIcons = new TextView[TABS];
+    private final TextView[] navLabels = new TextView[TABS];
     private Screen[] screens;
     private boolean autoScanPending;
 
@@ -39,8 +40,8 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Theme.BG);
         getWindow().setNavigationBarColor(Theme.SURFACE);
 
-        screens = new Screen[]{new HomeScreen(this), new CleanScreen(this), new AppsScreen(this),
-                new BatteryScreen(this), new ToolsScreen(this)};
+        screens = new Screen[]{new HomeScreen(this), new TurboScreen(this), new CleanScreen(this),
+                new AppsScreen(this), new BatteryScreen(this), new ToolsScreen(this)};
 
         LinearLayout root = Theme.col(this);
         root.setBackgroundColor(Theme.BG);
@@ -65,7 +66,7 @@ public class MainActivity extends Activity {
         names.addView(nameRow);
         names.addView(Theme.small(this, "Desempenho no máximo"));
         header.addView(names, Theme.weight(1));
-        header.addView(Theme.tag(this, "v2.0", Theme.CYAN));
+        header.addView(Theme.tag(this, "v3.0", Theme.CYAN));
         root.addView(header);
 
         scroll = new ScrollView(this);
@@ -78,15 +79,15 @@ public class MainActivity extends Activity {
         // Barra de navegação
         LinearLayout nav = Theme.row(this);
         nav.setBackgroundColor(Theme.SURFACE);
-        nav.setPadding(dp(6), dp(6), dp(6), dp(6));
-        for (int i = 0; i < 5; i++) {
+        nav.setPadding(dp(4), dp(6), dp(4), dp(6));
+        for (int i = 0; i < TABS; i++) {
             final int idx = i;
             LinearLayout item = Theme.col(this);
             item.setGravity(Gravity.CENTER);
             item.setPadding(0, dp(6), 0, dp(6));
             TextView ic = Theme.text(this, NAV_ICONS[i], 19, Theme.TEXT, false);
             ic.setGravity(Gravity.CENTER);
-            TextView lb = Theme.text(this, NAV_NAMES[i], 10.5f, Theme.MUTED, true);
+            TextView lb = Theme.text(this, NAV_NAMES[i], 10f, Theme.MUTED, true);
             lb.setGravity(Gravity.CENTER);
             lb.setSingleLine(true);
             item.addView(ic);
@@ -102,7 +103,7 @@ public class MainActivity extends Activity {
 
         Intent in = getIntent();
         if (in != null) {
-            tab = Math.max(0, Math.min(4, in.getIntExtra("tab", HOME)));
+            tab = Math.max(0, Math.min(TABS - 1, in.getIntExtra("tab", HOME)));
             autoScanPending = in.getBooleanExtra("autoscan", false);
         }
     }
@@ -110,6 +111,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (TurboScreen.endGameSession(this)) toast("🎮 Sessão de jogo encerrada — configurações restauradas");
         render();
         if (autoScanPending) {
             autoScanPending = false;
@@ -148,7 +150,7 @@ public class MainActivity extends Activity {
 
     void render() {
         gen++;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < TABS; i++) {
             boolean on = i == tab;
             navLabels[i].setTextColor(on ? Theme.GOLD : Theme.DIM);
             navIcons[i].setAlpha(on ? 1f : 0.55f);
@@ -200,6 +202,16 @@ public class MainActivity extends Activity {
 
     void openSetting(String action) {
         open(new Intent(action));
+    }
+
+    void copy(String text) {
+        try {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            cm.setPrimaryClip(android.content.ClipData.newPlainText("ZEUS", text));
+            toast("Copiado!");
+        } catch (Exception e) {
+            toast("Não foi possível copiar");
+        }
     }
 
     void toast(String s) {
