@@ -106,7 +106,7 @@ if [ -f shizuku.apk ]; then
   sleep 6
   abrir 6 "" 5; shot 22-pro-antes
   tocar_texto "Conectar ao Shizuku"; sleep 4; shot 23-shizuku-dialogo
-  tocar_texto "Allow" || tocar_texto "Permitir" || tocar_texto "ALLOW"; sleep 4
+  tocar_texto "Allow all the time" || tocar_texto "Permitir sempre" || tocar_texto "Allow"; sleep 4
   abrir 6 "" 5; shot 24-pro-conectado
   rolar; shot 25-pro-2
   rolar; shot 26-pro-3
@@ -119,6 +119,7 @@ if [ -f shizuku.apk ]; then
   abrir 6 "" 4
   tocar_texto "Compilar interface do sistema"; sleep 3; shot 28-compilando
   sleep 60; shot 29-compilado
+  echo "nivel shizuku: $(adb shell dumpsys activity provider rikka.shizuku 2>/dev/null | head -1)" >> "$V"
   # sessão de jogo com ajustes PRO
   echo "popups antes do jogo: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
   abrir 1 "" 4
@@ -126,14 +127,19 @@ if [ -f shizuku.apk ]; then
   tocar_texto "Jogar ⚡"; sleep 10; shot 30-jogo-pro
   echo "popups durante o jogo: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
   echo "vibracao durante o jogo: $(adb shell settings get system haptic_feedback_enabled)" >> "$V"
+  echo "hz minimo durante o jogo: $(adb shell settings get system min_refresh_rate)" >> "$V"
+  echo "modo de jogo: $(adb shell cmd game list-modes com.android.chrome 2>&1 | head -2 | tr '\n' ' ')" >> "$V"
   echo "sessao: $(adb shell run-as com.zeus.optimizer cat shared_prefs/zeus.xml 2>/dev/null | grep -o 'sessao_pkg[^<]*<' )" >> "$V"
   adb shell am start -n $P/.MainActivity; sleep 8; shot 31-volta-pro
   echo "popups depois de voltar: $(adb shell settings get global heads_up_notifications_enabled)" >> "$V"
   echo "vibracao depois de voltar: $(adb shell settings get system haptic_feedback_enabled)" >> "$V"
+  echo "hz minimo depois de voltar: $(adb shell settings get system min_refresh_rate)" >> "$V"
   # congelar app
   abrir 3 "" 15
   tocar_texto "Congelar"; sleep 5; shot 32-congelado
-  echo "suspenso: $(adb shell dumpsys package com.otimizador.app | grep -o 'suspended=[a-z]*' | head -1)" >> "$V"
+  echo "suspenso: $(adb shell dumpsys package com.otimizador.app | grep -io 'suspended=[a-z]*' | sort -u | tr '\n' ' ')" >> "$V"
+  tocar_texto "Descongelar"; sleep 5
+  echo "depois de descongelar: $(adb shell dumpsys package com.otimizador.app | grep -io 'suspended=[a-z]*' | sort -u | tr '\n' ' ')" >> "$V"
 else
   echo "shizuku.apk nao baixado" >> "$V"
 fi
