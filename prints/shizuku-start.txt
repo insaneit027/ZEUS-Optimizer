@@ -1,0 +1,7 @@
+info: starter begin
+info: killing old process...
+info: apk path is /data/app/~~C6jFx9aD02wLB-4bZ3d-PQ==/moe.shizuku.privileged.api-9csCYqR7JeoUCdFs2d0Vcw==/base.apk
+info: starting server...
+info: shizuku_server pid is 7909
+info: shizuku_starter exit with 0
+sh: /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh: No such file or directory

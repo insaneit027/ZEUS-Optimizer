@@ -1,0 +1,19 @@
+private_dns_mode: hostname / one.one.one.one
+animator_duration_scale depois do toque: 0.5
+animacoes durante o jogo: 0
+animacoes depois de voltar: 0.5
+desfoque antes: null
+desfoque depois de Aplicar: 1
+desfoque depois de Desfazer: null
+nivel shizuku: PROVIDER ContentProviderRecord{f709437 u0 com.zeus.optimizer/rikka.shizuku.ShizukuProvider} pid=8344
+popups antes do jogo: 1
+popups durante o jogo: 0
+vibracao durante o jogo: 0
+hz minimo durante o jogo: 60
+modo de jogo: com.android.chrome current mode: unsupported, available game modes: [] 
+sessao: 
+popups depois de voltar: 1
+vibracao depois de voltar: 1
+hz minimo depois de voltar: null
+suspenso: suspended=true 
+depois de descongelar: suspended=false 
