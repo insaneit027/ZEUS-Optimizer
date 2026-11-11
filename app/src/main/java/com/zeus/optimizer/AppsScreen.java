@@ -250,7 +250,7 @@ final class AppsScreen extends Screen {
         btns.addView(un, l1);
         btns.addView(cache, l2);
         c.addView(btns);
-        if (Shell.shizukuGranted()) {
+        if (Shell.shizukuGranted() && (!ap.essential || ap.frozen)) {
             Button fz = Theme.secondary(a, ap.frozen ? "🔥  Descongelar" : "🧊  Congelar (parar sem desinstalar)");
             fz.setTextSize(13);
             fz.setPadding(dp(10), dp(10), dp(10), dp(10));

@@ -32,6 +32,8 @@ final class AppAnalyzer {
         Drawable icon;
         long size, cache, lastUsed, screenTime7d;
         boolean frozen;
+        /** Teclado, tela inicial, Shizuku: nunca sugerir remover nem congelar. */
+        boolean essential;
         int level = KEEP;
     }
 
@@ -129,8 +131,13 @@ final class AppAnalyzer {
             if (!usage) {
                 a.level = KEEP;
                 a.reason = "Ative o acesso de uso para analisar";
+            } else if (Shell.SHIZUKU_PKG.equals(a.pkg)) {
+                a.level = KEEP;
+                a.essential = true;
+                a.reason = "Necessário para o Modo PRO — mantenha";
             } else if (keep.contains(a.pkg) || !launchable) {
                 a.level = KEEP;
+                a.essential = keep.contains(a.pkg);
                 a.reason = "Teclado, tela inicial ou serviço — mantenha se usa";
             } else if (since < 0 || since >= 60) {
                 if (age < 14) {

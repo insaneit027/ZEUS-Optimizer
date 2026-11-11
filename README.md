@@ -1,4 +1,4 @@
-# ⚡ ZEUS Optimizer 2.0
+# ⚡ ZEUS Optimizer 4.0
 
 Otimizador para Android 8.0 ou mais novo. Sem root, sem anúncios, sem coleta de dados.
 
@@ -12,7 +12,9 @@ Vá em **Releases** (à direita, ou abaixo no celular) e baixe o `ZEUS-Optimizer
 | 🧹 Limpeza | Análise profunda: APKs, miniaturas, temporários, lixeira, pastas vazias, duplicados, arquivos grandes, downloads antigos e mídia do WhatsApp. Gráfico do que ocupa espaço (fotos, vídeos, áudios...) |
 | 📱 Apps | Apps esquecidos, tamanho, cache, tempo de tela da semana, filtros e desinstalação em lote |
 | 🔋 Bateria | Nível, temperatura, voltagem, corrente, tempo para carga completa, saúde e ciclos, atualizados ao vivo |
-| 🛠 Ferramentas | Modo Jogo, botão ZEUS Boost nas configurações rápidas, lembrete semanal, guia para acelerar animações e atalhos do sistema |
+| 🚀 Turbo | Game Booster, monitor ao vivo (CPU, GPU, térmico, Hz), taxa de tela, ping, benchmark, DNS rápido |
+| 👑 Modo PRO | Com o Shizuku: Modo de Jogo em desempenho, escala de resolução e limite de FPS, Hz máximo, apps pesados bloqueados na partida, compilação de jogos e do sistema, congelar e hibernar apps e mais de 20 ajustes com Desfazer |
+| 🛠 Mais | Modo Jogo, botão ZEUS Boost nas configurações rápidas, lembrete semanal, guia para acelerar animações e atalhos do sistema |
 
 ## Limites do Android (sem root)
 - Nenhum app pode limpar o cache de outros apps sozinho desde o Android 6; o ZEUS abre a tela certa.
